@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EthiTech Pro - Dijital Etik Simülasyonu</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%); 
+      color: #ecf0f1; 
+      padding: 20px; 
+      min-height: 100vh;
+    }
+    
+    .container { 
+      max-width: 1000px; 
+      margin: 0 auto; 
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px; 
+      overflow: hidden; 
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    .screen { 
+      padding: 30px; 
+      display: none; 
+      text-align: center; 
+      min-height: 600px;
+    }
+    
+    .screen.active { 
+      display: block; 
+      animation: fadeIn 0.5s; 
+    }
+    
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(20px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+
+    h2 { color: #ecf0f1; margin-bottom: 20px; font-size: 2em; }
+    h3 { color: #3498db; margin: 15px 0; }
+    p { margin-bottom: 20px; line-height: 1.7; color: #bdc3c7; }
+
+    button { 
+      background: #3498db; 
+      color: white; 
+      border: none; 
+      padding: 14px 28px; 
+      margin: 10px; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-weight: bold;
+      transition: all 0.3s; 
+      font-size: 1em; 
+      min-width: 220px;
+    }
+    
+    button:hover { 
+      background: #2980b9; 
+      transform: translateY(-3px); 
+      box-shadow: 0 8px 20px rgba(52,152,219,0.3); 
+    }
+
+    .dashboard { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      background: rgba(44, 62, 80, 0.7); 
+      color: white; 
+      padding: 20px; 
+      border-radius: 16px; 
+      margin-bottom: 25px; 
+      text-align: center;
+      gap: 15px;
+    }
+    
+    .stat { 
+      font-size: 1em; 
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    
+    .stat span { 
+      display: block; 
+      font-size: 1.5em; 
+      font-weight: bold; 
+      margin-top: 5px; 
+    }
+    
+    .stat-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .stat-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .option { 
+      background: rgba(255, 255, 255, 0.1); 
+      border: 2px solid rgba(224, 224, 224, 0.3); 
+      padding: 20px; 
+      margin: 15px auto; 
+      border-radius: 16px; 
+      cursor: pointer; 
+      transition: all 0.3s; 
+      max-width: 700px;
+      text-align: left; 
+      position: relative;
+    }
+    
+    .option:hover { 
+      border-color: #3498db; 
+      transform: translateY(-3px); 
+      background: rgba(52, 152, 219, 0.1);
+    }
+    
+    .option.selected { 
+      border-color: #27ae60; 
+      background: rgba(39, 174, 96, 0.2); 
+    }
+    
+    .option::before { 
+      content: attr(data-letter); 
+      font-weight: bold; 
+      margin-right: 10px; 
+      color: #3498db;
+      font-size: 1.2em;
+    }
+    
+    .option-impact {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      font-size: 0.9em;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .impact-positive { color: #27ae60; }
+    .impact-negative { color: #e74c3c; }
+    .impact-neutral { color: #f39c12; }
+
+    .progress { 
+      margin: 15px 0; 
+      font-size: 1.1em; 
+      color: #95a5a6; 
+    }
+    
+    .progress-bar { 
+      height: 12px; 
+      background: rgba(255, 255, 255, 0.2); 
+      border-radius: 6px; 
+      overflow: hidden; 
+      margin-top: 8px; 
+      margin-bottom: 25px;
+    }
+    
+    .progress-fill { 
+      height: 100%; 
+      background: #27ae60; 
+      width: 0%; 
+      transition: width 0.5s; 
+    }
+
+    .case-description {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 25px;
+      border-radius: 12px;
+      margin: 20px 0;
+      text-align: left;
+      line-height: 1.7;
+    }
+    
+    .case-description h3 {
+      color: #3498db;
+      margin-bottom: 10px;
+    }
+
+    .final-analysis { 
+      background: rgba(255, 255, 255, 0.05); 
+      padding: 25px; 
+      border-radius: 12px; 
+      margin: 20px 0; 
+      text-align: left; 
+    }
+    
+    .suggestion { 
+      margin: 15px 0; 
+      padding: 15px; 
+      background: rgba(52, 152, 219, 0.1); 
+      border-left: 4px solid #3498db; 
+      border-radius: 8px;
+    }
+    
+    .ethical-principle {
+      display: inline-block;
+      background: rgba(39, 174, 96, 0.2);
+      color: #27ae60;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      margin: 5px 5px 5px 0;
+    }
+
+    .next-btn { background: #27ae60; }
+    .next-btn:hover { background: #1e8449; }
+    
+    .resource-btn { background: #f39c12; }
+    .resource-btn:hover { background: #d68910; }
+
+    .phase-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+    
+    .phase {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 5px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      transition: all 0.3s;
+    }
+    
+    .phase.active {
+      background: #3498db;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard { grid-template-columns: repeat(2, 1fr); }
+      button { min-width: auto; padding: 12px 20px; }
+      .option { padding: 15px; font-size: 0.95em; }
+      .phase-indicator { flex-direction: column; }
+      .phase { margin: 5px 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- YÖNERGE -->
+  <div id="intro" class="screen active">
+    <h2>EthiTech Pro'ya Hoş Geldin!</h2>
+    <div class="case-description">
+      <h3>🎯 SÜREÇ BİLEŞENLERİNE DAYALI EĞİTİM SIMÜLASYONU</h3>
+      <p><strong>Süreç A:</strong> Teknoloji ve ahlakla ilgili unsurları araştırma</p>
+      <p><strong>Süreç B:</strong> Teknoloji ve ahlakla ilgili unsurlar arasındaki ilişkileri belirleme</p>
+      
+      <h3>📋 OYUN KURALLARI</h3>
+      <p>1. <strong>5 farklı dijital etik vaka</strong> ile karşılaşacaksın</p>
+      <p>2. Her vakada <strong>4 aşamalı karar süreci</strong> uygulayacaksın</p>
+      <p>3. Seçimlerin <strong>4 farklı metriği</strong> etkileyecek</p>
+      <p>4. <strong>Kaynak yönetimi</strong> becerilerini kullanacaksın</p>
+      <p>5. En sonda <strong>detaylı etik analiz</strong> alacaksın</p>
+    </div>
+    <input type="text" id="playerName" placeholder="Danışman Adını Gir" style="padding:12px; margin:15px; width:250px; border-radius:8px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:white;">
+    <button onclick="startGame()">ETİK DANIŞMAN OLARAK BAŞLA</button>
+  </div>
+
+  <!-- VAKA EKRANI -->
+  <div id="case-screen" class="screen">
+    <div class="progress">Vaka <span id="current-case">1</span>/5</div>
+    <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+    
+    <div class="phase-indicator">
+      <div class="phase" id="phase-1">🔍 Problem Analizi</div>
+      <div class="phase" id="phase-2">👥 Paydaşları Belirle</div>
+      <div class="phase" id="phase-3">⚖️ Etik İlkeleri Seç</div>
+      <div class="phase" id="phase-4">💡 Çözüm Önerisi</div>
+    </div>
+    
+    <div class="dashboard">
+      <div class="stat">
+        📊 Etik<br><span id="etik">50</span>
+        <div class="stat-bar"><div class="stat-fill" id="etik-bar" style="background:#27ae60; width:50%"></div></div>
+      </div>
+      <div class="stat">
+        💰 Kâr<br><span id="kar">50</span>
+        <div class="stat-bar"><div class="stat-fill" id="kar-bar" style="background:#3498db; width:50%"></div></div>
+      </div>
+      <div class="stat">
+        😊 Memnuniyet<br><span id="mem">50</span>
+        <div class="stat-bar"><div class="stat-fill" id="mem-bar" style="background:#f39c12; width:50%"></div></div>
+      </div>
+      <div class="stat">
+        ⏱️ Zaman<br><span id="time">30</span>gün
+        <div class="stat-bar"><div class="stat-fill" id="time-bar" style="background:#9b59b6; width:100%"></div></div>
+      </div>
+    </div>
+    
+    <h2 id="case-title"></h2>
+    
+    <div class="case-description">
+      <h3 id="case-subtitle">Problem Durumu</h3>
+      <p id="case-problem"></p>
+      <div id="ethical-principles"></div>
+    </div>
+    
+    <div id="options"></div>
+    
+    <div id="resource-options" style="display:none;">
+      <h3>Kaynak Tahsisi</h3>
+      <div class="option" onclick="allocateResources('high')">
+        <strong>Yüksek Kaynak:</strong> Kapsamlı çözüm için maksimum kaynak ayır
+        <div class="option-impact">
+          <span class="impact-negative">-15 Zaman</span>
+          <span class="impact-positive">+10 Etik</span>
+        </div>
+      </div>
+      <div class="option" onclick="allocateResources('medium')">
+        <strong>Orta Kaynak:</strong> Dengeli bir yaklaşım
+        <div class="option-impact">
+          <span class="impact-neutral">-8 Zaman</span>
+          <span class="impact-neutral">+5 Etik</span>
+        </div>
+      </div>
+      <div class="option" onclick="allocateResources('low')">
+        <strong>Düşük Kaynak:</strong> Hızlı çözüm için minimum kaynak
+        <div class="option-impact">
+          <span class="impact-positive">-3 Zaman</span>
+          <span class="impact-negative">-5 Etik</span>
+        </div>
+      </div>
+    </div>
+    
+    <button id="next-btn" class="next-btn" style="display:none;" onclick="nextPhase()">SONRAKİ AŞAMA →</button>
+    <button id="case-btn" class="next-btn" style="display:none;" onclick="nextCase()">SONRAKİ VAKA →</button>
+  </div>
+
+  <!-- FİNAL -->
+  <div id="final-screen" class="screen">
+    <h2>Tebrikler, <span id="final-name"></span>!</h2>
+    <p>Dijital Etik Danışmanı olarak görevin tamamlandı</p>
+    
+    <div class="dashboard" style="max-width:800px; margin:20px auto;">
+      <div class="stat">
+        📊 Etik<br><span id="final-etik"></span>
+        <div class="stat-bar"><div class="stat-fill" id="final-etik-bar" style="background:#27ae60"></div></div>
+      </div>
+      <div class="stat">
+        💰 Kâr<br><span id="final-kar"></span>
+        <div class="stat-bar"><div class="stat-fill" id="final-kar-bar" style="background:#3498db"></div></div>
+      </div>
+      <div class="stat">
+        😊 Memnuniyet<br><span id="final-mem"></span>
+        <div class="stat-bar"><div class="stat-fill" id="final-mem-bar" style="background:#f39c12"></div></div>
+      </div>
+      <div class="stat">
+        ⭐ Performans<br><span id="final-score"></span>
+        <div class="stat-bar"><div class="stat-fill" id="final-score-bar" style="background:#9b59b6"></div></div>
+      </div>
+    </div>
+    
+    <div class="final-analysis">
+      <h3>Detaylı Etik Analiz ve Süreç Değerlendirmesi</h3>
+      <div id="analysis-content"></div>
+    </div>
+    
+    <button onclick="restartGame()">YENİDEN OYNA</button>
+    <button class="resource-btn" onclick="showDetailedReport()">DETAYLI RAPORU GÖR</button>
+  </div>
+
+</div>
+
+<script>
+  let player = { 
+    name: "", 
+    etik: 50, 
+    kar: 50, 
+    mem: 50, 
+    time: 30,
+    decisions: [], 
+    currentCase: 0,
+    currentPhase: 0,
+    phaseCompleted: false
+  };
+  
+  const totalCases = 5;
+  const ethicalPrinciples = [
+    "Mahremiyet", "Adalet", "Şeffaflık", "Özerklik", "Güven", 
+    "Dürüstlük", "Eşitlik", "Sorumluluk", "İnsan Onuru", "Hakkaniyet"
+  ];
+
+  const cases = [
+    {
+      title: "DataSafe Sosyal Medya Platformu",
+      problem: "DataSafe sosyal medya platformu, kullanıcıların özel mesajlarını reklam hedefleme için izinsiz kullanıyor. Kullanıcılar bu durumdan habersiz ve platform gizlilik politikasında bu durumdan bahsetmiyor. Platform yöneticileri, bu veri kullanımının şirket kârlarını önemli ölçüde artırdığını belirtiyorlar.",
+      principles: ["Mahremiyet", "Şeffaflık", "Güven", "Dürüstlük"],
+      phases: [
+        {
+          title: "Problem Analizi",
+          question: "Bu durumu nasıl analiz edersiniz?",
+          options: [
+            { 
+              text: "Kapsamlı veri akışı incelemesi yap", 
+              kar: -5, etik: +8, mem: +5, time: -5,
+              desc: "Tüm veri işleme süreçlerini detaylı inceler"
+            },
+            { 
+              text: "Kullanıcı şikayetlerini temel al", 
+              kar: 0, etik: +3, mem: +2, time: -2,
+              desc: "Mevcut şikayetler üzerinden hareket eder"
+            },
+            { 
+              text: "Yüzeysel inceleme ile yetin", 
+              kar: +5, etik: -10, mem: -8, time: -1,
+              desc: "Hızlı çözüm için yüzeysel analiz yapar"
+            }
+          ]
+        },
+        {
+          title: "Paydaşları Belirle",
+          question: "Hangi paydaşları önceliklendirirsiniz?",
+          options: [
+            { 
+              text: "Kullanıcılar ve sivil toplum kuruluşları", 
+              kar: -8, etik: +12, mem: +10, time: -3,
+              desc: "Kullanıcı haklarını merkeze alır"
+            },
+            { 
+              text: "Şirket yönetimi ve yatırımcılar", 
+              kar: +10, etik: -8, mem: -5, time: -2,
+              desc: "Şirket çıkarlarını önceliklendirir"
+            },
+            { 
+              text: "Dengeli paydaş yönetimi", 
+              kar: +2, etik: +5, mem: +3, time: -4,
+              desc: "Tüm paydaşları dengeli şekilde yönetir"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      title: "AI Hire İşe Alım Yazılımı",
+      problem: "AI Hire adlı yapay zekâ destekli işe alım yazılımı, kadın adaylara erkek adaylardan ortalama %15 daha düşük puan veriyor. Şirket, bu durumun algoritmanın eğitim verilerindeki önyargıdan kaynaklandığını düşünüyor. Yazılım şu anda 200'den fazla şirket tarafından kullanılıyor.",
+      principles: ["Adalet", "Eşitlik", "Şeffaflık", "Hakkaniyet"],
+      phases: [
+        {
+          title: "Problem Analizi",
+          question: "Algoritmik önyargıyı nasıl incelersiniz?",
+          options: [
+            { 
+              text: "Algoritmayı tamamen yeniden eğit", 
+              kar: -15, etik: +20, mem: +12, time: -10,
+              desc: "Kapsamlı bir yeniden eğitim süreci başlatır"
+            },
+            { 
+              text: "İnsan denetimi mekanizması kur", 
+              kar: -5, etik: +12, mem: +8, time: -5,
+              desc: "Otomasyon ve insan denetimini birleştirir"
+            },
+            { 
+              text: "İstatistiksel düzeltme uygula", 
+              kar: +5, etik: -5, mem: -3, time: -2,
+              desc: "Hızlı düzeltme ile yetinir"
+            }
+          ]
+        },
+        {
+          title: "Paydaşları Belirle",
+          question: "Hangi grupları sürece dahil edersiniz?",
+          options: [
+            { 
+              text: "Tüm cinsiyet eşitliği grupları", 
+              kar: -10, etik: +15, mem: +12, time: -6,
+              desc: "Kapsayıcı bir paydaş yönetimi uygular"
+            },
+            { 
+              text: "Sadece yasal zorunlulukları karşıla", 
+              kar: +8, etik: -10, mem: -8, time: -2,
+              desc: "Minimum yasal gerekliliklerle yetinir"
+            },
+            { 
+              text: "İç denetim ve seçilmiş gruplar", 
+              kar: -2, etik: +8, mem: +5, time: -4,
+              desc: "Dengeli bir paydaş katılımı sağlar"
+            }
+          ]
+        }
+      ]
+    }
+    // Diğer vakalar benzer şekilde genişletilebilir
+  ];
+
+  function startGame() {
+    player.name = document.getElementById('playerName').value.trim() || "Etik Danışman";
+    player.currentCase = 0;
+    player.currentPhase = 0;
+    player.decisions = [];
+    player.etik = 50;
+    player.kar = 50;
+    player.mem = 50;
+    player.time = 30;
+    loadCase(0, 0);
+  }
+
+  function loadCase(caseIndex, phaseIndex) {
+    if (caseIndex >= cases.length) {
+      showFinal();
+      return;
+    }
+    
+    player.currentCase = caseIndex;
+    player.currentPhase = phaseIndex;
+    player.phaseCompleted = false;
+    
+    const currentCase = cases[caseIndex];
+    
+    // UI güncellemeleri
+    document.getElementById('current-case').textContent = caseIndex + 1;
+    document.getElementById('progress-fill').style.width = `${(caseIndex / totalCases) * 100}%`;
+    updateDashboard();
+    
+    document.getElementById('case-title').textContent = currentCase.title;
+    document.getElementById('case-problem').textContent = currentCase.problem;
+    document.getElementById('case-subtitle').textContent = currentCase.phases[phaseIndex].title;
+    
+    // Etik ilkeleri göster
+    const principlesHtml = currentCase.principles.map(p => 
+      `<span class="ethical-principle">${p}</span>`
+    ).join('');
+    document.getElementById('ethical-principles').innerHTML = principlesHtml;
+    
+    // Seçenekleri yükle
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = "";
+    
+    currentCase.phases[phaseIndex].options.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'option';
+      div.setAttribute('data-letter', String.fromCharCode(65 + i));
+      div.innerHTML = `
+        <strong>${String.fromCharCode(65 + i)}) ${opt.text}</strong>
+        <div style="font-size:0.9em; color:#95a5a6; margin-top:8px;">${opt.desc}</div>
+        <div class="option-impact">
+          ${opt.kar !== 0 ? `<span class="${opt.kar > 0 ? 'impact-positive' : 'impact-negative'}">${opt.kar > 0 ? '+' : ''}${opt.kar} Kâr</span>` : ''}
+          ${opt.etik !== 0 ? `<span class="${opt.etik > 0 ? 'impact-positive' : 'impact-negative'}">${opt.etik > 0 ? '+' : ''}${opt.etik} Etik</span>` : ''}
+          ${opt.mem !== 0 ? `<span class="${opt.mem > 0 ? 'impact-positive' : 'impact-negative'}">${opt.mem > 0 ? '+' : ''}${opt.mem} Mem</span>` : ''}
+          ${opt.time !== 0 ? `<span class="${opt.time > 0 ? 'impact-positive' : 'impact-negative'}">${opt.time > 0 ? '+' : ''}${opt.time} Zaman</span>` : ''}
+        </div>
+      `;
+      div.onclick = () => chooseOption(caseIndex, phaseIndex, i);
+      optionsContainer.appendChild(div);
+    });
+    
+    // Aşama göstergesini güncelle
+    updatePhaseIndicator(phaseIndex);
+    
+    // Butonları ayarla
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('case-btn').style.display = 'none';
+    document.getElementById('resource-options').style.display = 'none';
+    
+    show("case-screen");
+  }
+
+  function updatePhaseIndicator(phaseIndex) {
+    document.querySelectorAll('.phase').forEach((phase, i) => {
+      phase.classList.toggle('active', i === phaseIndex);
+    });
+  }
+
+  function chooseOption(caseIndex, phaseIndex, optIndex) {
+    document.querySelectorAll('#options .option').forEach(o => o.classList.remove('selected'));
+    event.target.classList.add('selected');
+
+    const opt = cases[caseIndex].phases[phaseIndex].options[optIndex];
+    
+    // Değerleri güncelle
+    player.kar = Math.max(0, Math.min(100, player.kar + opt.kar));
+    player.etik = Math.max(0, Math.min(100, player.etik + opt.etik));
+    player.mem = Math.max(0, Math.min(100, player.mem + opt.mem));
+    player.time = Math.max(0, player.time + opt.time);
+    
+    // Kararı kaydet
+    if (!player.decisions[caseIndex]) player.decisions[caseIndex] = [];
+    player.decisions[caseIndex][phaseIndex] = optIndex;
+    
+    player.phaseCompleted = true;
+    
+    // Sonraki aşamayı kontrol et
+    if (phaseIndex < cases[caseIndex].phases.length - 1) {
+      document.getElementById('next-btn').style.display = 'block';
+    } else {
+      document.getElementById('resource-options').style.display = 'block';
+    }
+    
+    updateDashboard();
+  }
+
+  function allocateResources(level) {
+    let impact = {};
+    
+    switch(level) {
+      case 'high':
+        impact = { time: -15, etik: +10, kar: -5, mem: +5 };
+        break;
+      case 'medium':
+        impact = { time: -8, etik: +5, kar: 0, mem: +3 };
+        break;
+      case 'low':
+        impact = { time: -3, etik: -5, kar: +5, mem: -3 };
+        break;
+    }
+    
+    player.time = Math.max(0, player.time + impact.time);
+    player.etik = Math.max(0, Math.min(100, player.etik + impact.etik));
+    player.kar = Math.max(0, Math.min(100, player.kar + impact.kar));
+    player.mem = Math.max(0, Math.min(100, player.mem + impact.mem));
+    
+    document.getElementById('case-btn').style.display = 'block';
+    document.getElementById('resource-options').style.display = 'none';
+    updateDashboard();
+  }
+
+  function nextPhase() {
+    loadCase(player.currentCase, player.currentPhase + 1);
+  }
+
+  function nextCase() {
+    loadCase(player.currentCase + 1, 0);
+  }
+
+  function updateDashboard() {
+    document.getElementById('etik').textContent = player.etik;
+    document.getElementById('kar').textContent = player.kar;
+    document.getElementById('mem').textContent = player.mem;
+    document.getElementById('time').textContent = player.time;
+    
+    document.getElementById('etik-bar').style.width = player.etik + '%';
+    document.getElementById('kar-bar').style.width = player.kar + '%';
+    document.getElementById('mem-bar').style.width = player.mem + '%';
+    document.getElementById('time-bar').style.width = (player.time / 30 * 100) + '%';
+  }
+
+  function showFinal() {
+    document.getElementById('final-name').textContent = player.name;
+    
+    const finalScore = Math.round((player.etik + player.kar + player.mem) / 3);
+    
+    document.getElementById('final-etik').textContent = player.etik;
+    document.getElementById('final-kar').textContent = player.kar;
+    document.getElementById('final-mem').textContent = player.mem;
+    document.getElementById('final-score').textContent = finalScore;
+    
+    document.getElementById('final-etik-bar').style.width = player.etik + '%';
+    document.getElementById('final-kar-bar').style.width = player.kar + '%';
+    document.getElementById('final-mem-bar').style.width = player.mem + '%';
+    document.getElementById('final-score-bar').style.width = finalScore + '%';
+
+    let analysis = `
+      <p><strong>Toplam Puan:</strong> ${player.etik + player.kar + player.mem}</p>
+      <p><strong>Ortalama Performans:</strong> ${finalScore}/100</p>
+      <p><strong>Kalan Zaman:</strong> ${player.time} gün</p>
+      <hr>
+    `;
+
+    player.decisions.forEach((caseDecisions, caseIndex) => {
+      if (caseDecisions) {
+        const currentCase = cases[caseIndex];
+        analysis += `<div class="suggestion"><strong>${currentCase.title}</strong><br>`;
+        
+        caseDecisions.forEach((decision, phaseIndex) => {
+          if (decision !== undefined) {
+            const opt = currentCase.phases[phaseIndex].options[decision];
+            analysis += `<em>${currentCase.phases[phaseIndex].title}:</em> "${opt.text}"<br>`;
+          }
+        });
+        
+        analysis += `</div>`;
+      }
+    });
+
+    analysis += `<div class="suggestion">
+      <strong>Etik Değerlendirme:</strong><br>
+      ${getEthicalEvaluation(finalScore)}
+    </div>`;
+
+    document.getElementById('analysis-content').innerHTML = analysis;
+    show("final-screen");
+  }
+
+  function getEthicalEvaluation(score) {
+    if (score >= 80) return "Mükemmel! Hem etik değerleri korudunuz hem de şirket çıkarlarını dengelediniz. Gerçek bir etik lider olarak çalışıyorsunuz.";
+    if (score >= 70) return "İyi iş! Etik değerlere öncelik verdiniz. Bu uzun vadede şirketin itibarını güçlendirecektir.";
+    if (score >= 60) return "Kabul edilebilir performans. Bazı kararlarınızda iyileştirme yapabilirsiniz.";
+    return "Performansınızı geliştirmeniz gerekiyor. Hem etik değerler hem de şirket kârı konusunda daha dengeli kararlar almalısınız.";
+  }
+
+  function showDetailedReport() {
+    const report = `
+      DETAYLI ETİK DANIŞMANLIK RAPORU
+      Danışman: ${player.name}
+      Toplam Etik Puan: ${player.etik}
+      Şirket Kârı: ${player.kar}
+      Paydaş Memnuniyeti: ${player.mem}
+      
+      VAKA ANALİZLERİ:
+      ${player.decisions.map((caseDecisions, i) => 
+        cases[i] ? `
+        ${cases[i].title}:
+        ${caseDecisions ? caseDecisions.map((d, j) => 
+          `  - ${cases[i].phases[j].title}: ${cases[i].phases[j].options[d].text}`
+        ).join('\n') : '  Karar verilmedi'}
+        ` : ''
+      ).join('\n')}
+    `;
+    
+    alert(report);
+  }
+
+  function restartGame() {
+    if (confirm("Tüm ilerlemen silinecek. Emin misin?")) {
+      show("intro");
+    }
+  }
+
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
